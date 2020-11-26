@@ -5,11 +5,19 @@
 #include <cstdint>
 #include <stack>
 
+// create cell array and pointer and initialize them to zero
+std::array<uint8_t, 30000> cells = {};
+int pointer = 0;
+
+/* used for indicating 
+int lineNumber = 1;
+int columnNumber = 1;*/
+
+bool isPtrOutOfBounds();
+
 int main(int argc, char* argv[])
 {
-    // create cell array and pointer and initialize them to zero
-    std::array<uint8_t, 100> cells = {};
-    int pointer = 0;
+
 
     // keeps track of the farthest out cell thats been visited, used to print the values of all cells that have actually been accessed
     int farthestCell = 0;
@@ -22,71 +30,76 @@ int main(int argc, char* argv[])
 
     // open up the source code and start stepping through and executing
     std::ifstream sourceCode(argv[1]);
-    if (sourceCode.is_open()) {
-        char data;
-        while (sourceCode.get(data)) {
-            // assert(0 <= pointer && pointer < 100);
-            switch (data) {
-                case '-': cells[pointer]--; break;
-                case '+': cells[pointer]++; break;
-                case '>': 
-                    pointer++; 
-                    if (0 > pointer || pointer >= cells.size()) {
-                        std::cerr << "bro you just tried to go out side the cell array bounds, thats like, kinda cring\n";
-                        return -1;
-                    }
-                    if (pointer > farthestCell) { farthestCell = pointer; }
-                    break;
-                case '<': 
-                    pointer--; 
-                    if (0 > pointer || pointer >= cells.size()) {
-                        std::cerr << "bro you just tried to go out side the cell array bounds, thats like, kinda cring\n";
-                        return -1;
-                    }
-                    break;
-                case '.': std::cout << cells[pointer]; break;
-                case ',': cells[pointer] = getchar(); break;
-                case '[': 
-                    if (cells[pointer] != 0) { 
-                        openingBrackets.push(sourceCode.tellg());
-                        break; 
-                    }
-                    depth = 0;
-                    while (sourceCode.get(data)) {
-                        if (data == '[') {
-                            depth++;
-                        } else if (data == ']') {
-                            if (depth == 0) {
-                                break;
-                            }
-                            depth--;
+    if (!sourceCode.is_open()) {
+        std::cerr << "couldn't open file, maybe the path or name given is wrong?";
+        return -1;
+    }
+    char data;
+    while (sourceCode.get(data)) {
+        // assert(0 <= pointer && pointer < 100);
+        switch (data) {
+            case '-': cells[pointer]--; break;
+            case '+': cells[pointer]++; break;
+            case '>': 
+                pointer++; 
+                if (isPtrOutOfBounds()) { return EXIT_FAILURE; }
+                if (pointer > farthestCell) { farthestCell = pointer; }
+                break;
+            case '<': 
+                pointer--; 
+                if (isPtrOutOfBounds()) { return EXIT_FAILURE; }
+                break;
+            case '.': std::cout << cells[pointer]; break;
+            case ',': cells[pointer] = getchar(); break;
+            case '[': 
+                if (cells[pointer] != 0) { 
+                    openingBrackets.push(sourceCode.tellg());
+                    break; 
+                }
+                depth = 0;
+                while (sourceCode.get(data)) {
+                    if (data == '[') {
+                        depth++;
+                    } else if (data == ']') {
+                        if (depth == 0) {
+                            break;
                         }
+                        depth--;
                     }
-                    if (depth != 0) {
-                        std::cerr << "my guy you forgot to close a bracket pair thats not very gamer pog of you\n";
-                        return -1;
-                    }
+                }
+                if (depth != 0) {
+                    std::cerr << "my guy you forgot to close a bracket pair thats not very gamer pog of you\n";
+                    return -1;
+                }
+                break;
+            case ']':
+                if (openingBrackets.size() == 0) {
+                    std::cerr << "You just tried to use a closing bracket with no opening bracket, thats not very big brain\n";
+                    return -1;
+                }
+                if (cells[pointer] != 0) {
+                    sourceCode.seekg(openingBrackets.top());
                     break;
-                case ']':
-                    if (openingBrackets.size() == 0) {
-                        std::cerr << "You just tried to use a closing bracket with no opening bracket, thats not very big brain\n";
-                        return -1;
-                    }
-                    if (cells[pointer] != 0) {
-                        sourceCode.seekg(openingBrackets.top());
-                        break;
-                    }
-                    openingBrackets.pop();
-                    break;
-            }
+                }
+                openingBrackets.pop();
+                break;
         }
     }
     sourceCode.close();
-    std::cout << "\n";
+    std::cout << '\n';
     for (int i = 0; i <= farthestCell; i++) {
         std::cout << "Cell " << i << ": " << +cells[i] << "\n";
     }
 }
+
+bool isPtrOutOfBounds() {
+    if (0 > pointer || pointer >= cells.size()) {
+        std::cerr << "bro you just tried to go out side the cell array bounds, thats like, kinda cring\n";
+        return true;
+    }
+    return false;
+}
+
 
 /* Code Graveyard:
 
