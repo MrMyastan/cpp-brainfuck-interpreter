@@ -7,7 +7,8 @@ Feedback is welcome, I'm always looking to improve! (suggestions for a better na
 - there are 30,000 cells
 - no cells to the left of the starting cell
 - I'm on honestly not exactly sure how it's handling EOF right now
-- I believe OS newlines are converted to 10s on input and 10s are converted to OS newlines on output, but don't quote me on it
+- I believe OS newlines are converted to 10s on input, but don't quote me on it
+- 10s are converted to OS newlines on output
 - character set is just whatever an unsigned char can hold, which I think is ASCII extended
 - I don't know if you can tell, but I'm kinda new to C++
 ## To-Do
