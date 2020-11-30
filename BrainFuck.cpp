@@ -7,10 +7,10 @@
 
 // create cell array and pointer and initialize them to zero
 std::array<uint8_t, 30000> cells = {};
-int pointer = 0;
+unsigned int pointer = 0;
 
 // keeps track of the farthest out cell thats been visited, used to print the values of all cells that have actually been accessed
-int farthestCell = 0;
+unsigned int farthestCell = 0;
 
 // used for indicating 
 int lineNumber = 1;
@@ -22,7 +22,7 @@ struct bracketLocation {
     int colNum = 0;
 };
 
-bool isPtrOutOfBounds();
+void ptrOutOfBoundsErr();
 
 void dumpCellValues();
 
@@ -40,6 +40,12 @@ int main(int argc, char* argv[])
     // stores where the current bracket is before jumping, for error printing and storage
     bracketLocation preJumpLoc;
 
+    // check for file path argument
+    if (argc < 2) {
+        std::cerr << "you need to pass a file name/path as the first argument";
+        return EXIT_FAILURE;
+    }
+
     // open up the source code and start stepping through and executing
     std::ifstream sourceCode(argv[1]);
     if (!sourceCode.is_open()) {
@@ -53,13 +59,13 @@ int main(int argc, char* argv[])
             case '-': cells[pointer]--; break;
             case '+': cells[pointer]++; break;
             case '>': 
-                pointer++; 
-                if (isPtrOutOfBounds()) { return EXIT_FAILURE; }
+                if (pointer == cells.size() - 1) { ptrOutOfBoundsErr(); return EXIT_FAILURE; }
+                pointer++;
                 if (pointer > farthestCell) { farthestCell = pointer; }
                 break;
             case '<': 
-                pointer--; 
-                if (isPtrOutOfBounds()) { return EXIT_FAILURE; }
+                if (pointer == 0) { ptrOutOfBoundsErr(); return EXIT_FAILURE; }
+                pointer--;
                 break;
             case '.': std::cout << cells[pointer]; break;
             case ',': cells[pointer] = getchar(); break;
@@ -123,13 +129,9 @@ int main(int argc, char* argv[])
     dumpCellValues();
 }
 
-bool isPtrOutOfBounds() {
-    if (0 > pointer || pointer >= cells.size()) {
-        std::cerr << "\nbro you just tried to go out side the cell array bounds, thats like, kinda cring\n" << "Line: " << lineNumber << ", Column: " << columnNumber << "\n";;
-        dumpCellValues();
-        return true;
-    }
-    return false;
+void ptrOutOfBoundsErr() {
+    std::cerr << "\nbro you just tried to go out side the cell array bounds, thats like, kinda cring\n" << "Line: " << lineNumber << ", Column: " << columnNumber << "\n";;
+    dumpCellValues();
 }
 
 int recursionCount = 0;
@@ -139,7 +141,7 @@ void dumpCellValues() {
     std::string input;
     std::cin >> input;
     if (input == "y" || input == "yes") {
-        for (int i = 0; i <= farthestCell; i++) {
+        for (unsigned int i = 0; i <= farthestCell; i++) {
             std::cout << "Cell " << i << ": " << +cells[i] << "\n";
         }
         std::cout << "Pointer is at cell " << pointer;
