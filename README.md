@@ -13,6 +13,6 @@ Feedback is welcome, I'm always looking to improve! (suggestions for a better na
 - I don't know if you can tell, but I'm kinda new to C++
 ## To-Do
 - [x] add better error messages (line + column number of bad characters)
-- [ ] fix signed/unsigned comparison when making sure pointer is still in array bounds
+- [x] fix signed/unsigned comparison when making sure pointer is still in array bounds
 - [x] maybe put some stuff into functions?
 - [ ] comment my gosh darn code
